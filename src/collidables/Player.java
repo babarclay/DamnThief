@@ -1,4 +1,4 @@
-package player;
+package collidables;
 
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
@@ -6,7 +6,7 @@ import org.newdawn.slick.geom.Point;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Shape;
 
-public class Player {
+public class Player implements Collidable {
 
 	private static final Point PLAYER_SPAWN_POINT = new Point(100, 100);
 	private static final String PLAYER_IMAGE_LOCATION = "resources/player.png";
@@ -46,9 +46,13 @@ public class Player {
 	public void draw() {
 		playerImage.draw(playerLocation.getX(), playerLocation.getY());
 	}
-
+	
 	public Shape getBoundingBox() {
 		return new Rectangle(getX(), getY(), playerImage.getWidth(),
 				playerImage.getHeight());
+	}
+
+	public boolean intersects(Collidable other) {
+		return getBoundingBox().intersects(other.getBoundingBox());
 	}
 }

@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.BasicGame;
 import org.newdawn.slick.GameContainer;
@@ -7,13 +9,16 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.SpriteSheet;
 import org.newdawn.slick.tiled.TiledMap;
 
-import player.Player;
+import collidables.Collidable;
+import collidables.Player;
+import collidables.TerrainObject;
 
 public class SlickTest extends BasicGame {
 	SpriteSheet dungeonTiles;
 	TiledMap prototypeRoom;
 	Player player;
-
+	TerrainObject object;
+	ArrayList<Collidable> collidables;
 	public SlickTest() {
 		super("SimpleTest");
 	}
@@ -28,6 +33,10 @@ public class SlickTest extends BasicGame {
 		dungeonTiles = new SpriteSheet("resources/sheet.png", 304, 208);
 		prototypeRoom = new TiledMap("resources/prototypeRoom.tmx");
 		player = new Player();
+		object = new TerrainObject();
+		collidables = new ArrayList<Collidable>();
+		collidables.add(player);
+		collidables.add(object);
 	}
 
 	@Override
@@ -48,6 +57,10 @@ public class SlickTest extends BasicGame {
 		if (input.isKeyDown(Input.KEY_DOWN)) {
 			player.setY(player.getY() + distance);
 		}
+		if(player.intersects(object)){
+			player.setX(0);
+			player.setY(0);
+		}
 	}
 
 	@Override
@@ -56,6 +69,7 @@ public class SlickTest extends BasicGame {
 		g.drawString("Hello, Slick world!", 0, 100);
 		dungeonTiles.draw(0, 0, 2);
 		prototypeRoom.render(0, 0);
+		object.draw();
 		player.draw();
 	}
 
