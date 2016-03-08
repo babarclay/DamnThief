@@ -45,21 +45,38 @@ public class SlickTest extends BasicGame {
 		Input input = container.getInput();
 		int speed = 200;
 		float distance = speed * ((float) delta / 1000);
+		
+		//these values will be used if there is a collision
+		float futurePlayerX = player.getX();
+		float futurePlayerY = player.getY();
+		
 		if (input.isKeyDown(Input.KEY_LEFT)) {
-			player.setX(player.getX() - distance);
+			futurePlayerX-= distance;
 		}
 		if (input.isKeyDown(Input.KEY_RIGHT)) {
-			player.setX(player.getX() + distance);
+			futurePlayerX+=distance;
 		}
 		if (input.isKeyDown(Input.KEY_UP)) {
-			player.setY(player.getY() - distance);
+			futurePlayerY-= distance;
 		}
 		if (input.isKeyDown(Input.KEY_DOWN)) {
-			player.setY(player.getY() + distance);
+			futurePlayerY+=distance;
 		}
-		if(player.intersects(object)){
-			player.setX(0);
-			player.setY(0);
+		if(player.getFutureShape(futurePlayerX, futurePlayerY).intersects(object.getBoundingBox())){
+			if(player.getFutureXShape(futurePlayerX).intersects(object.getBoundingBox())){
+				if(!object.intersects(player.getFutureYShape(futurePlayerY))){
+					player.setY(futurePlayerY);
+				}
+			}
+			else if(object.intersects(player.getFutureYShape(futurePlayerY))){
+				if(!object.intersects(player.getFutureXShape(futurePlayerX))){
+					player.setX(futurePlayerX);
+				}
+			}
+		}
+		else{
+			player.setX(futurePlayerX);
+			player.setY(futurePlayerY);
 		}
 	}
 

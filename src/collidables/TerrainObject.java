@@ -55,4 +55,8 @@ public class TerrainObject implements Collidable{
 	public boolean intersects(Collidable other) {
 		return getBoundingBox().intersects(other.getBoundingBox());
 	}
+	
+	public boolean intersects(Shape shape){
+		return getBoundingBox().intersects(shape);
+	}
 }

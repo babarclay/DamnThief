@@ -42,7 +42,19 @@ public class Player implements Collidable {
 	public void setY(float y) {
 		playerLocation.setY(y);
 	}
+	
+	public Shape getFutureXShape(float x){
+		return new Rectangle(x, getY(), playerImage.getWidth(), playerImage.getHeight());
+	}
 
+	public Shape getFutureYShape(float y){
+		return new Rectangle(getX(), y, playerImage.getWidth(), playerImage.getHeight());
+	}
+	
+	public Shape getFutureShape(float x, float y){
+		return new Rectangle (x, y, playerImage.getWidth(), playerImage.getHeight());
+	}
+	
 	public void draw() {
 		playerImage.draw(playerLocation.getX(), playerLocation.getY());
 	}
@@ -54,5 +66,9 @@ public class Player implements Collidable {
 
 	public boolean intersects(Collidable other) {
 		return getBoundingBox().intersects(other.getBoundingBox());
+	}
+
+	public boolean intersects(Shape shape) {
+		return getBoundingBox().intersects(shape);
 	}
 }
