@@ -7,6 +7,7 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.SpriteSheet;
+import org.newdawn.slick.geom.Shape;
 import org.newdawn.slick.tiled.TiledMap;
 
 import collidables.Collidable;
@@ -18,7 +19,8 @@ public class SlickTest extends BasicGame {
 	TiledMap prototypeRoom;
 	Player player;
 	TerrainObject object;
-	ArrayList<Collidable> collidables;
+	TerrainObject object2;
+	ArrayList<Collidable> terrainCollidables;
 	public SlickTest() {
 		super("SimpleTest");
 	}
@@ -30,18 +32,25 @@ public class SlickTest extends BasicGame {
 		container.setVSync(true);
 		container.setTargetFrameRate(60);
 		
+		//initialize objects
 		dungeonTiles = new SpriteSheet("resources/sheet.png", 304, 208);
 		prototypeRoom = new TiledMap("resources/prototypeRoom.tmx");
 		player = new Player();
 		object = new TerrainObject();
-		collidables = new ArrayList<Collidable>();
-		collidables.add(player);
-		collidables.add(object);
+		object2 = new TerrainObject();
+		terrainCollidables = new ArrayList<Collidable>();
+		terrainCollidables.add(object);
+		terrainCollidables.add(object2);
+		object2.setX(300);
 	}
 
 	@Override
 	public void update(GameContainer container, int delta)
 			throws SlickException {
+		playerUpdate(container, delta);
+	}
+
+	private void playerUpdate(GameContainer container, int delta){
 		Input input = container.getInput();
 		int speed = 200;
 		float distance = speed * ((float) delta / 1000);
@@ -62,14 +71,14 @@ public class SlickTest extends BasicGame {
 		if (input.isKeyDown(Input.KEY_DOWN)) {
 			futurePlayerY+=distance;
 		}
-		if(player.getFutureShape(futurePlayerX, futurePlayerY).intersects(object.getBoundingBox())){
-			if(player.getFutureXShape(futurePlayerX).intersects(object.getBoundingBox())){
-				if(!object.intersects(player.getFutureYShape(futurePlayerY))){
+		if(intersectsAnyTerrainCollidables(player.getFutureShape(futurePlayerX, futurePlayerY))){
+			if(intersectsAnyTerrainCollidables(player.getFutureXShape(futurePlayerX))){
+				if(!intersectsAnyTerrainCollidables(player.getFutureYShape(futurePlayerY))){
 					player.setY(futurePlayerY);
 				}
 			}
-			else if(object.intersects(player.getFutureYShape(futurePlayerY))){
-				if(!object.intersects(player.getFutureXShape(futurePlayerX))){
+			else if(intersectsAnyTerrainCollidables(player.getFutureYShape(futurePlayerY))){
+				if(!intersectsAnyTerrainCollidables(player.getFutureXShape(futurePlayerX))){
 					player.setX(futurePlayerX);
 				}
 			}
@@ -79,7 +88,18 @@ public class SlickTest extends BasicGame {
 			player.setY(futurePlayerY);
 		}
 	}
-
+	
+	private boolean intersectsAnyTerrainCollidables(Shape shape){
+		boolean intersects = false;
+		for(Collidable c: terrainCollidables){
+			if(c.intersects(shape)){
+				intersects = true;
+			}
+		}
+		return intersects;
+	}
+	
+	
 	@Override
 	public void render(GameContainer container, Graphics g)
 			throws SlickException {
@@ -87,6 +107,7 @@ public class SlickTest extends BasicGame {
 		dungeonTiles.draw(0, 0, 2);
 		prototypeRoom.render(0, 0);
 		object.draw();
+		object2.draw();
 		player.draw();
 	}
 
