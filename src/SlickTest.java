@@ -6,8 +6,10 @@ import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
+import org.newdawn.slick.geom.Point;
 import org.newdawn.slick.geom.Shape;
 
+import collidables.Ally;
 import collidables.BasicCollidable;
 import collidables.Collidable;
 import collidables.CollidableSet;
@@ -16,6 +18,7 @@ import collidables.TerrainObject;
 
 public class SlickTest extends BasicGame {
 	Player player;
+	Ally ally;
 	TerrainObject object;
 	TerrainObject object2;
 	Room room;
@@ -34,6 +37,7 @@ public class SlickTest extends BasicGame {
 		// initialize objects
 		room = new Room();
 		player = new Player();
+		ally = new Ally();
 		object = new TerrainObject();
 		object2 = new TerrainObject();
 		terrainCollidables = new CollidableSet();
@@ -45,12 +49,20 @@ public class SlickTest extends BasicGame {
 	@Override
 	public void update(GameContainer container, int delta)
 			throws SlickException {
-		playerUpdate(container, delta);
+		playerUpdate(container.getInput(), delta);
+		allyUpdate(container.getInput());
 	}
 
-	private void playerUpdate(GameContainer container, int delta) {
-		Input input = container.getInput();
-		int speed = 200;
+	private void allyUpdate(Input input) {
+		if (input.isMouseButtonDown(Input.MOUSE_LEFT_BUTTON)) {
+			ally.setAllyWaypoint(new Point(input.getMouseX(),input.getMouseY()));
+		}
+		ally.moveAlly();
+	}
+
+	
+	private void playerUpdate(Input input, int delta) {
+		int speed = 100;
 		float distance = speed * ((float) delta / 1000);
 
 		// these values will be used if there is a collision
@@ -104,6 +116,7 @@ public class SlickTest extends BasicGame {
 		object.draw();
 		object2.draw();
 		player.draw();
+		ally.draw();
 	}
 
 	public static void main(String[] args) {
