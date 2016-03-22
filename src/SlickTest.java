@@ -18,7 +18,7 @@ import collidables.TerrainObject;
 
 public class SlickTest extends BasicGame {
 	Player player;
-	Ally ally;
+	CollidableSet<Ally> allies;
 	TerrainObject object;
 	TerrainObject object2;
 	Room room;
@@ -38,7 +38,8 @@ public class SlickTest extends BasicGame {
 		// initialize objects
 		room = new Room();
 		player = new Player();
-		ally = new Ally();
+		allies = new CollidableSet<Ally>();
+		allies.add(new Ally());
 		object = new TerrainObject();
 		object2 = new TerrainObject();
 		enemies = new CollidableSet<Enemy>();
@@ -57,13 +58,20 @@ public class SlickTest extends BasicGame {
 		playerUpdate(container.getInput(), delta);
 		allyUpdate(container.getInput());
 		enemyUpdate();
+		handleEnemyCollisionsWithAlly();
+		handleEnemyCollisionsWithPlayer();
 	}
 
 	private void allyUpdate(Input input) {
 		if (input.isMouseButtonDown(Input.MOUSE_LEFT_BUTTON)) {
-			ally.setAllyWaypoint(new Point(input.getMouseX(), input.getMouseY()));
+			for (Ally ally : allies) {
+				ally.setAllyWaypoint(new Point(input.getMouseX(), input
+						.getMouseY()));
+			}
 		}
-		ally.moveAlly();
+		for (Ally ally : allies) {
+			ally.moveAlly();
+		}
 	}
 
 	private void enemyUpdate() {
@@ -120,6 +128,24 @@ public class SlickTest extends BasicGame {
 		return room.collidesWith(c) || terrainCollidables.collidesWith(c);
 	}
 
+	private void handleEnemyCollisionsWithAlly(){
+		for(Enemy enemy: enemies){
+			if(allies.collidesWith(enemy)){
+				enemy.setX(0);
+				enemy.setY(0);
+			}
+		}
+	}
+
+	private void handleEnemyCollisionsWithPlayer() {
+		for(Enemy enemy: enemies){
+			if(enemy.intersects(player)){
+				enemy.setX(0);
+				enemy.setY(0);
+			}
+		}
+	}
+
 	@Override
 	public void render(GameContainer container, Graphics g)
 			throws SlickException {
@@ -131,7 +157,9 @@ public class SlickTest extends BasicGame {
 		for (Enemy enemy : enemies) {
 			enemy.draw();
 		}
-		ally.draw();
+		for(Ally ally: allies){
+			ally.draw();
+		}
 	}
 
 	public static void main(String[] args) {
