@@ -1,10 +1,9 @@
 package collidables;
-
 import java.util.HashSet;
 
-public class CollidableSet extends HashSet<Collidable> {
+public class CollidableSet<T extends Collidable> extends HashSet<T>{
 
-	private static final long serialVersionUID = -3674335840924743885L;
+	private static final long serialVersionUID = 5302672596981180727L;
 
 	public boolean collidesWith(Collidable collidable) {
 		boolean intersects = false;
@@ -15,5 +14,4 @@ public class CollidableSet extends HashSet<Collidable> {
 		}
 		return intersects;
 	}
-	
 }

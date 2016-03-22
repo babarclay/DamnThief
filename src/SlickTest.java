@@ -7,12 +7,12 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Point;
-import org.newdawn.slick.geom.Shape;
 
 import collidables.Ally;
 import collidables.BasicCollidable;
 import collidables.Collidable;
 import collidables.CollidableSet;
+import collidables.Enemy;
 import collidables.Player;
 import collidables.TerrainObject;
 
@@ -22,7 +22,8 @@ public class SlickTest extends BasicGame {
 	TerrainObject object;
 	TerrainObject object2;
 	Room room;
-	CollidableSet terrainCollidables;
+	CollidableSet<Collidable> terrainCollidables;
+	CollidableSet<Enemy> enemies;
 
 	public SlickTest() {
 		super("SimpleTest");
@@ -40,7 +41,10 @@ public class SlickTest extends BasicGame {
 		ally = new Ally();
 		object = new TerrainObject();
 		object2 = new TerrainObject();
-		terrainCollidables = new CollidableSet();
+		enemies = new CollidableSet<Enemy>();
+		enemies.add(new Enemy());
+
+		terrainCollidables = new CollidableSet<Collidable>();
 		terrainCollidables.add(object);
 		terrainCollidables.add(object2);
 		object2.setX(300);
@@ -49,18 +53,26 @@ public class SlickTest extends BasicGame {
 	@Override
 	public void update(GameContainer container, int delta)
 			throws SlickException {
+		//
 		playerUpdate(container.getInput(), delta);
 		allyUpdate(container.getInput());
+		enemyUpdate();
 	}
 
 	private void allyUpdate(Input input) {
 		if (input.isMouseButtonDown(Input.MOUSE_LEFT_BUTTON)) {
-			ally.setAllyWaypoint(new Point(input.getMouseX(),input.getMouseY()));
+			ally.setAllyWaypoint(new Point(input.getMouseX(), input.getMouseY()));
 		}
 		ally.moveAlly();
 	}
 
-	
+	private void enemyUpdate() {
+		for (Enemy enemy : enemies) {
+			enemy.setWayPoint(new Point(player.getX(), player.getY()));
+			enemy.moveEnemy();
+		}
+	}
+
 	private void playerUpdate(Input input, int delta) {
 		int speed = 100;
 		float distance = speed * ((float) delta / 1000);
@@ -88,20 +100,20 @@ public class SlickTest extends BasicGame {
 				player.getFutureXShape(futurePlayerX));
 		BasicCollidable futurePlayerYShape = new BasicCollidable(
 				player.getFutureYShape(futurePlayerY));
-		if (collidesWithRoomOrTerrain(futurePlayerShape)){}
-			if (collidesWithRoomOrTerrain(futurePlayerXShape)) {
-				if (!collidesWithRoomOrTerrain(futurePlayerYShape)) {
-					player.setY(futurePlayerY);
-				}
-			} else if (collidesWithRoomOrTerrain(futurePlayerYShape)) {
-				if (!collidesWithRoomOrTerrain(futurePlayerXShape)) {
-					player.setX(futurePlayerX);
-				}
-			} 
-			else {
-				player.setX(futurePlayerX);
+		if (collidesWithRoomOrTerrain(futurePlayerShape)) {
+		}
+		if (collidesWithRoomOrTerrain(futurePlayerXShape)) {
+			if (!collidesWithRoomOrTerrain(futurePlayerYShape)) {
 				player.setY(futurePlayerY);
 			}
+		} else if (collidesWithRoomOrTerrain(futurePlayerYShape)) {
+			if (!collidesWithRoomOrTerrain(futurePlayerXShape)) {
+				player.setX(futurePlayerX);
+			}
+		} else {
+			player.setX(futurePlayerX);
+			player.setY(futurePlayerY);
+		}
 	}
 
 	private boolean collidesWithRoomOrTerrain(Collidable c) {
@@ -116,6 +128,9 @@ public class SlickTest extends BasicGame {
 		object.draw();
 		object2.draw();
 		player.draw();
+		for (Enemy enemy : enemies) {
+			enemy.draw();
+		}
 		ally.draw();
 	}
 
