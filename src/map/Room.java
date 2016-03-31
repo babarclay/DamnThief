@@ -71,7 +71,6 @@ public class Room {
 	}
 	
 	public void draw() {
-		dungeonTiles.draw(0, 0, tileScale);
 		prototypeRoom.render(0, 0);
 	}
 	
