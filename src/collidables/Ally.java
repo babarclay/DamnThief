@@ -1,6 +1,7 @@
 package collidables;
 
 import org.newdawn.slick.Image;
+import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Point;
 import org.newdawn.slick.geom.Rectangle;
@@ -8,71 +9,96 @@ import org.newdawn.slick.geom.Shape;
 
 public class Ally implements Collidable {
 
-	private static final Point ALLY_SPAWN_POINT = new Point(200, 100);
 	private static final String ALLY_IMAGE_LOCATION = "resources/ally.png";
-	
-	private Image allyImage;
-	private Point allyLocation;
-	private Point allyWaypoint;
-	
-	public Ally(){
+
+	private Image image;
+	private Point location;
+	private Point waypoint;
+	private boolean selected;
+
+	public Ally(Point spawnPoint) {
 		try {
-			allyImage = new Image(ALLY_IMAGE_LOCATION);
+			image = new Image(ALLY_IMAGE_LOCATION);
 		} catch (SlickException e) {
 			e.printStackTrace();
 		}
-		allyLocation = ALLY_SPAWN_POINT;
-		allyWaypoint = allyLocation;
-	
+		location = spawnPoint;
+		waypoint = location;
+		selected = false;
 	}
-	
-	public Image getAllyImage(){
-		return allyImage;
+
+	public void update(Input input) {
+		if (input.isMouseButtonDown(Input.MOUSE_LEFT_BUTTON)) {
+			Point mousePoint = new Point(input.getMouseX(), input.getMouseY());
+			this.isSelected(mousePoint);
+		}
+		if (input.isMouseButtonDown(Input.MOUSE_RIGHT_BUTTON)) {
+			Point mousePoint = new Point(input.getMouseX(), input.getMouseY());
+			this.setAllyWaypoint(mousePoint);
+		}
+		this.moveAlly();
 	}
-	
+
+	public Image getAllyImage() {
+		return image;
+	}
+
 	public float getX() {
-		return allyLocation.getX();
+		return location.getX();
 	}
 
 	public float getY() {
-		return allyLocation.getY();
+		return location.getY();
 	}
 
 	public void setX(float x) {
-		allyLocation.setX(x);
+		location.setX(x);
 	}
 
 	private void setY(float y) {
-		allyLocation.setY(y);
+		location.setY(y);
 	}
-	
-	public void setAllyWaypoint(Point waypoint){
-		this.allyWaypoint = waypoint;
+
+	public void setAllyWaypoint(Point waypoint) {
+		this.waypoint = waypoint;
 	}
-	
-	public void moveAlly(){
-		if(allyLocation.getX() < allyWaypoint.getX()){
-			setX(allyLocation.getX() + 1);
-		}
-		if(allyLocation.getX() > allyWaypoint.getX()){
-			setX(allyLocation.getX() - 1);
-		}
-		if(allyLocation.getY() < allyWaypoint.getY()){
-			setY(allyLocation.getY() + 1);
-		}
-		if(allyLocation.getY() > allyWaypoint.getY()){
-			setY(allyLocation.getY() - 1);
+
+	public void moveAlly() {
+		if (selected) {
+			if (location.getX() < waypoint.getX()) {
+				setX(location.getX() + 1);
+			}
+			if (location.getX() > waypoint.getX()) {
+				setX(location.getX() - 1);
+			}
+			if (location.getY() < waypoint.getY()) {
+				setY(location.getY() + 1);
+			}
+			if (location.getY() > waypoint.getY()) {
+				setY(location.getY() - 1);
+			}
 		}
 	}
-	
+
 	public void draw() {
-		allyImage.draw(allyLocation.getX(), allyLocation.getY());
+		image.draw(location.getX(), location.getY());
 	}
-	
+
+	public boolean isSelected(Point mousePoint) {
+		Rectangle selection = new Rectangle(mousePoint.getX() - 10,
+				mousePoint.getY() - 10, 20, 20);
+		if (selection.intersects(getBoundingBox())) {
+			selected = true;
+		} else {
+			selected = false;
+		}
+		return selected;
+	}
+
 	@Override
 	public Shape getBoundingBox() {
-		return new Rectangle(getX(), getY(), allyImage.getWidth(),
-				allyImage.getHeight());
+		return new Rectangle(getX(), getY(), image.getWidth(),
+				image.getHeight());
 	}
 
 	@Override

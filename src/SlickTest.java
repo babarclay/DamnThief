@@ -1,5 +1,3 @@
-import map.Room;
-
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.BasicGame;
 import org.newdawn.slick.GameContainer;
@@ -7,6 +5,8 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Point;
+import org.newdawn.slick.geom.Rectangle;
+import org.newdawn.slick.geom.Shape;
 
 import collidables.Ally;
 import collidables.BasicCollidable;
@@ -15,9 +15,15 @@ import collidables.CollidableSet;
 import collidables.Enemy;
 import collidables.Player;
 import collidables.TerrainObject;
+import map.Room;
 
 public class SlickTest extends BasicGame {
 	Player player;
+	Ally ally;
+	Ally ally2;
+	Point mousePoint;
+	Shape mouseSelect;
+
 	CollidableSet<Ally> allies;
 	TerrainObject object;
 	TerrainObject object2;
@@ -39,7 +45,13 @@ public class SlickTest extends BasicGame {
 		room = new Room();
 		player = new Player();
 		allies = new CollidableSet<Ally>();
-		allies.add(new Ally());
+		ally = new Ally(new Point(200, 100));
+		ally2 = new Ally(new Point(250, 100));
+		allies = new CollidableSet<Ally>();
+		allies.add(new Ally(new Point(100, 150)));
+		allies.add(ally);
+		allies.add(ally2);
+
 		object = new TerrainObject();
 		object2 = new TerrainObject();
 		enemies = new CollidableSet<Enemy>();
@@ -49,28 +61,37 @@ public class SlickTest extends BasicGame {
 		terrainCollidables.add(object);
 		terrainCollidables.add(object2);
 		object2.setX(300);
+
+		mousePoint = new Point(0, 0);
+		mouseSelect = new Rectangle(mousePoint.getX(), mousePoint.getY(), 20,
+				20);
 	}
 
 	@Override
 	public void update(GameContainer container, int delta)
 			throws SlickException {
-		//
 		playerUpdate(container.getInput(), delta);
 		allyUpdate(container.getInput());
 		enemyUpdate();
 		handleEnemyCollisionsWithAlly();
 		handleEnemyCollisionsWithPlayer();
+		mouseUpdate(container.getInput());
+
+	}
+
+	private void mouseUpdate(Input input) {
+		if (input.isMouseButtonDown(input.MOUSE_LEFT_BUTTON)) {
+			mouseSelect = new Rectangle(input.getMouseX() - 10,
+					input.getMouseY() - 10, 20, 20);
+		}
+		if (input.isMouseButtonDown(input.MOUSE_RIGHT_BUTTON)) {
+			mousePoint = new Point(input.getMouseX(), input.getMouseY());
+		}
 	}
 
 	private void allyUpdate(Input input) {
-		if (input.isMouseButtonDown(Input.MOUSE_LEFT_BUTTON)) {
-			for (Ally ally : allies) {
-				ally.setAllyWaypoint(new Point(input.getMouseX(), input
-						.getMouseY()));
-			}
-		}
 		for (Ally ally : allies) {
-			ally.moveAlly();
+			ally.update(input);
 		}
 	}
 
@@ -128,9 +149,9 @@ public class SlickTest extends BasicGame {
 		return room.collidesWith(c) || terrainCollidables.collidesWith(c);
 	}
 
-	private void handleEnemyCollisionsWithAlly(){
-		for(Enemy enemy: enemies){
-			if(allies.collidesWith(enemy)){
+	private void handleEnemyCollisionsWithAlly() {
+		for (Enemy enemy : enemies) {
+			if (allies.collidesWith(enemy)) {
 				enemy.setX(0);
 				enemy.setY(0);
 			}
@@ -138,8 +159,8 @@ public class SlickTest extends BasicGame {
 	}
 
 	private void handleEnemyCollisionsWithPlayer() {
-		for(Enemy enemy: enemies){
-			if(enemy.intersects(player)){
+		for (Enemy enemy : enemies) {
+			if (enemy.intersects(player)) {
 				enemy.setX(0);
 				enemy.setY(0);
 			}
@@ -149,7 +170,6 @@ public class SlickTest extends BasicGame {
 	@Override
 	public void render(GameContainer container, Graphics g)
 			throws SlickException {
-		g.drawString("Hello, Slick world!", 0, 100);
 		room.draw();
 		object.draw();
 		object2.draw();
@@ -157,9 +177,13 @@ public class SlickTest extends BasicGame {
 		for (Enemy enemy : enemies) {
 			enemy.draw();
 		}
-		for(Ally ally: allies){
+		for (Ally ally : allies) {
 			ally.draw();
 		}
+		for (Ally ally : allies) {
+			ally.draw();
+		}
+		g.draw(mouseSelect);
 	}
 
 	public static void main(String[] args) {
